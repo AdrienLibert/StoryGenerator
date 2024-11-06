@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Story & Tweet Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Historical Story & Tweet Generator</h1>
+        
+        <div class="form-group">
+            <label for="genre">Story Genre:</label>
+            <input type="text" id="genre" placeholder="E.g., war, horror">
+        </div>
+        
+        <div class="form-group">
+            <label for="character">Character:</label>
+            <input type="text" id="character" placeholder="E.g., Napoleon">
+        </div>
+        
+        <div class="form-group">
+            <label for="location">Location:</label>
+            <input type="text" id="location" placeholder="E.g., France">
+        </div>
+        
+        <button onclick="generateStory()">Generate Story</button>
+        <button onclick="generateImage()">Generate Image</button>
+        <button onclick="sendTweet()">Send Tweet</button>
+
+        <div id="tweet-content">
+            <h2>Generated Story</h2>
+            <pre id="content"></pre>
+        </div>
+        
+        <h2>Generated Images</h2>
+        <div id="image-container" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+               
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
