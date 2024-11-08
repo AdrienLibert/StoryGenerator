@@ -5,11 +5,10 @@ import os
 import requests
 from flask import Flask, render_template, request, jsonify, url_for
 
-
 # Twitter API keys
 API_KEY = '8T9loQuNEcqUsSYhzb0Ndnvw7'
 API_SECRET_KEY = 'RGGX3bDp2T1t4s8vKNTsfDBQxfIJPzXQqquVAMP8MEoAkX5eW6'
-ACCESS_TOKEN = '3223725430-MRe9uZ713SQDlPejoMDuAnRiHEXgQ9SQS3I4qvw'
+ACCESS_TOKEN = '3223725430-MReu2m94662993E19c7c46E4A9A5B644934cE9B4'
 ACCESS_TOKEN_SECRET = 'Y2qL2mueUAunAb9D77S0RKDuqTiFSKGZ1U1jE6osuu0Ey'
 BEARER_TOKEN = 'AAAAAAAAAAAAAAAAAAAAABOLwQEAAAAA3rdHAJq%2BFzOda5RhmoEWb5AcEBc%3DKFIh8IUzRaVEJqrxyTXKMp3lAF2pt77qydJI6DylsmYi2elzM1'
 
@@ -17,14 +16,14 @@ BEARER_TOKEN = 'AAAAAAAAAAAAAAAAAAAAABOLwQEAAAAA3rdHAJq%2BFzOda5RhmoEWb5AcEBc%3D
 OPENAI_API_KEY = "sk-gHIs4XUay9uu2m94662993E19c7c46E4A9A5B644934cE9B4"
 OPENAI_BASE_URL = "http://chat.api.xuanyuan.com.cn/v1"
 
-# Tweepy authentication
+# Tweepy authentication setup
 auth = tweepy.OAuth1UserHandler(
     consumer_key=API_KEY,
     consumer_secret=API_SECRET_KEY,
     access_token=ACCESS_TOKEN,
     access_token_secret=ACCESS_TOKEN_SECRET
 )
-api_v1 = tweepy.API(auth)
+api_v1 = tweepy.API(auth)  # Twitter API v1
 client = tweepy.Client(
     bearer_token=BEARER_TOKEN,
     consumer_key=API_KEY,
@@ -36,14 +35,15 @@ client = tweepy.Client(
 # OpenAI client initialization
 client_ai = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
 
+# Flask app setup
 app = Flask(__name__)
 
+# Global variables to store story, segments, and image URLs
 tweet_content = ""
 segments = []
 image_urls = []
 
-
-
+# Old function to generate images for the terminal version
 """ def picture(prompt):
     response = client_ai.images.generate(
     model="dall-e-3",
@@ -61,6 +61,7 @@ image_urls = []
         with open("tweet_pic.png", "wb") as f:
             f.write(response.content) """
 
+# Function to clean up the prompt text for DALL-E, ensuring compliance with content policy
 def ask_gpt_mytext_isgood(text):
     prompt = (
         "Please rewrite the following text to ensure it adheres strictly to content policies for image generation. "
@@ -72,11 +73,12 @@ def ask_gpt_mytext_isgood(text):
     response = client_ai.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}]
-        )
+    )
 
     cleaned_text = response.choices[0].message.content.strip()
     return cleaned_text
 
+# Function to generate an image using a sanitized prompt and save it locally
 def picture(prompt, image_name):
     cleaned_prompt = ask_gpt_mytext_isgood(prompt)
     response = client_ai.images.generate(
@@ -91,40 +93,32 @@ def picture(prompt, image_name):
     response = requests.get(image_url)
 
     if response.status_code == 200:
-        # Enregistre l'image localement avec un nom unique
+        # Save the image in the static folder
         image_path = f"static/{image_name}.png"
         with open(image_path, "wb") as f:
             f.write(response.content)
         return image_path
     return None
 
+# Function to generate a historical story with emojis using the OpenAI API
 def ask_gpt_historian_story_with_emojis(genre, character=None, location=None):
-    prompt = f"Act as a historian and tell a concise historical story about {genre}, arround 500 char. Avoid using dashes (—) in the text."
+    prompt = f"Act as a historian and tell a concise historical story about {genre}, around 500 characters. Avoid using dashes (—) in the text."
     if character:
         prompt += f" Make {character} the main character of the story."
     if location:
         prompt += f" Set the story in {location}."
     prompt += " Make it engaging, accurate, and add relevant emojis to enhance the mood"
     response = client_ai.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4",
         messages=[
             {"role": "user", "content": prompt}
         ]
     )
     return response.choices[0].message.content
 
-""" def send_tweet(content,):
-    image_paths = ['tweet_pic.png']
-    media_ids = []
-    for image_path in image_paths:
-        media = api_v1.media_upload(image_path)
-        media_ids.append(media.media_id)
-
-    response = client.create_tweet(text=content, media_ids=media_ids)
-    print("Tweet sent successfully.") """
-
+# Function to segment a long story into parts suitable for Twitter threads
 def ask_gpt_to_segment_text(content):
-    prompt = f"Create a captivating title for this historical story, and then segment the text into parts suitable for a Twitter thread. Each part should be arround 280 characters (min 200 max 350), while maintaining natural breaks and readability:\n\n{content}"
+    prompt = f"Create a captivating title for this historical story, and then segment the text into parts suitable for a Twitter thread. Each part should be around 280 characters (min 200 max 350), while maintaining natural breaks and readability:\n\n{content}"
 
     response = client_ai.chat.completions.create(
         model="gpt-4",
@@ -135,9 +129,9 @@ def ask_gpt_to_segment_text(content):
     title, *segments = response_text.split("\n\n")
 
     segments[0] = f"{title}\n\n{segments[0]}"
-
     return segments
 
+# Function to delete images in the static folder after posting to Twitter
 def delete_images(directory="static"):
     try:
         for filename in os.listdir(directory):
@@ -148,6 +142,7 @@ def delete_images(directory="static"):
     except Exception as e:
         print(f"An error occurred while deleting images: {e}")
 
+# Function to send a threaded tweet with optional media
 def send_thread(segments, image_urls):
     last_tweet_id = None
 
@@ -155,13 +150,14 @@ def send_thread(segments, image_urls):
         image_path = os.path.abspath(os.path.join('static', os.path.basename(image_urls[i]))) if i < len(image_urls) else None
         
         if image_path and os.path.exists(image_path):
-            media = api_v1.media_upload(image_path)  # Télécharge l'image en utilisant le chemin complet
+            media = api_v1.media_upload(image_path)  # Upload image if it exists
             media_ids = [media.media_id]
         else:
-            media_ids = None  # Pas d'image pour ce segment ou fichier introuvable
+            media_ids = None  # No image for this segment
             print(f"Image not found or does not exist: {image_path}")
 
         try:
+            # Send the tweet with the appropriate media or as a reply
             if last_tweet_id is None:
                 tweet = client.create_tweet(text=segments[i], media_ids=media_ids)
             else:
@@ -179,10 +175,12 @@ def send_thread(segments, image_urls):
 
     print("Thread with images sent successfully.")
 
+# Main route to render the index page
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# Endpoint to generate a story based on user input
 @app.route('/generate', methods=['POST'])
 def generate_story():
     global tweet_content
@@ -200,7 +198,7 @@ def generate_story():
         "segments": segments
     })
 
-
+# Endpoint to generate images for each segment
 @app.route('/generate_image', methods=['POST'])
 def generate_image():
     global segments
@@ -221,6 +219,7 @@ def generate_image():
         "image_urls": image_urls
     })
 
+# Endpoint to send the tweet thread
 @app.route('/send', methods=['POST'])
 def send_tweet():
     global segments, image_urls, tweet_content
@@ -234,9 +233,11 @@ def send_tweet():
     else:
         return jsonify({"message": "No content to send. Please enter a genre to generate tweet content."})
 
+# Run the app
 if __name__ == "__main__":
     app.run(debug=True)
 
+# Old main function for terminal-based testing
 """ def main():
     print("Welcome to the Historical Storyteller with Twitter Integration!")
     print("Type the genre of the historical story you want (e.g., horror, war, romance). Optionally, add a character and location (e.g., 'horror Napoleon California'). Type 'send' to send the tweet.")

@@ -1,17 +1,16 @@
-Here's a **README** template for your application, explaining setup, usage, dependencies, and functionality.
-
----
-
 # Historical Storyteller with Twitter Integration
 
 An interactive web application that automatically generates and posts historical stories on Twitter with AI-generated images. Users can select the type of story they want, input preferences (genre, character, location), and preview the generated content before posting it as a Twitter thread.
 
 ## Table of Contents
-- [Features](#features)
-- [Technologies and Tools](#technologies-and-tools)
-- [Setup and Installation](#setup-and-installation)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
+- [Historical Storyteller with Twitter Integration](#historical-storyteller-with-twitter-integration)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Technologies and Tools](#technologies-and-tools)
+  - [Setup and Installation](#setup-and-installation)
+  - [Usage](#usage)
+  - [API Endpoints](#api-endpoints)
+  - [Known Issues and Limitations](#known-issues-and-limitations)
 
 ## Features
 
@@ -47,17 +46,8 @@ An interactive web application that automatically generates and posts historical
     ```
 
 3. **Set Up API Keys**:
-   - **OpenAI API Key**: Sign up for OpenAI, obtain an API key, and add it to a `.env` file.
-   - **Twitter API Key**: Obtain Twitter API keys and access tokens, add them to the `.env` file.
-
-   Example `.env` file:
-   ```plaintext
-   OPENAI_API_KEY=your_openai_key
-   TWITTER_API_KEY=your_twitter_key
-   TWITTER_API_SECRET_KEY=your_twitter_secret
-   TWITTER_ACCESS_TOKEN=your_access_token
-   TWITTER_ACCESS_SECRET=your_access_secret
-   ```
+   - **OpenAI API Key**: Sign up for OpenAI, obtain an API key, and add it to app.py.
+   - **Twitter API Key**: Obtain Twitter API keys and access tokens, add it to app.py.
 
 4. **Run the Application**:
     ```bash
