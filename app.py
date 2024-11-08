@@ -6,15 +6,16 @@ import requests
 from flask import Flask, render_template, request, jsonify, url_for
 
 # Twitter API keys
-API_KEY = '8T9loQuNEcqUsSYhzb0Ndnvw7'
-API_SECRET_KEY = 'RGGX3bDp2T1t4s8vKNTsfDBQxfIJPzXQqquVAMP8MEoAkX5eW6'
-ACCESS_TOKEN = '3223725430-MReu2m94662993E19c7c46E4A9A5B644934cE9B4'
-ACCESS_TOKEN_SECRET = 'Y2qL2mueUAunAb9D77S0RKDuqTiFSKGZ1U1jE6osuu0Ey'
-BEARER_TOKEN = 'AAAAAAAAAAAAAAAAAAAAABOLwQEAAAAA3rdHAJq%2BFzOda5RhmoEWb5AcEBc%3DKFIh8IUzRaVEJqrxyTXKMp3lAF2pt77qydJI6DylsmYi2elzM1'
+API_KEY = 'your_api_key'
+API_SECRET_KEY = 'your_api_secret_key'
+ACCESS_TOKEN = 'your_access_token'
+ACCESS_TOKEN_SECRET = 'your_access_token_secret'
+BEARER_TOKEN = 'your_bearer_token'
 
 # OpenAI API keys
-OPENAI_API_KEY = "sk-gHIs4XUay9uu2m94662993E19c7c46E4A9A5B644934cE9B4"
-OPENAI_BASE_URL = "http://chat.api.xuanyuan.com.cn/v1"
+OPENAI_API_KEY = "your_openai_api_key"
+OPENAI_BASE_URL = "your_openai_base_url"
+
 
 # Tweepy authentication setup
 auth = tweepy.OAuth1UserHandler(
